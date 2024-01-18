@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Articles{% endblock %}
+
+{% block body %}
+<style>
+    .categoryContainer{ font-size: larger;}
+    .card-text{  
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        }
+
+        .categoryLink.active{
+            border-bottom: 2px dashed black;
+        }
+</style>
+
+  <div class="m-0 border-0 bd-example m-0 border-0 bd-example-flex">
+      <div class="d-flex justify-content-center categoryContainer" >
+       {% for cat in category %}
+              <p class="p-2 pb-4"><a class="nav-link categoryLink {% if categoryId == cat.id %}active{% endif %}" aria-current="page" href="{{ path('app_post', {'cat_id': cat.id}) }}">{{ cat.name }}</a> </p>
+          {% endfor %}
+      </div>
+  </div>
+
+    {% if posts|length == 0 %}
+        <div class="container alert alert-danger text-center" role="alert">
+         il n'y a actuellement pas d'article pour cette catégorie.
+        </div>
+  {% else %}
+  <div class="container text-center">
+   <div class="row">
+    {% for post in posts %}
+     <div class="col-4">
+         <div class="card" >
+            <img src="..." class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">{{post.title}}</h5>
+                <p class="card-text">{{post.description}}</p>
+                <a  class="btn btn-primary" href="{{ path('app_post_detail', {'post_id': post.id}) }}">Lire</a>
+            </div>
+         </div>
+        </div>
+    {% endfor %}
+    </div>
+    </div>
+  {% endif %}
+
+{% endblock %}
+

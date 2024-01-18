@@ -1,0 +1,33 @@
+{# <header> #}
+
+<style>
+.search-container{
+    width:30%;
+}
+</style>
+<nav class="navbar navbar-expand-lg mb-5" style="background-color: #e3f2fd;">
+ <div class="container-fluid">
+    <a class="navbar-brand" href="#">Blog</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+
+     <div class="container-fluid search-container">
+        <form class="d-flex" role="search">
+        <input class="form-control me-2" type="search" placeholder="Recherche par titre" aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">Recherche</button>
+        </form>
+    </div>
+
+    <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{{path('app_post')}}">Articles</a>
+        </li>
+      </ul>
+    <button type="button" class="btn btn-dark">Connexion</button>
+     
+    </div>
+  </div>
+</nav>
+{# </header> #}

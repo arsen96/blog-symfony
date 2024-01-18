@@ -1,0 +1,56 @@
+{# <header> #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Articles{% endblock %}
+
+{% block body %}
+
+<style>
+nav{
+    margin-bottom:0px!important;
+}
+.backgroundImg{
+    background-image: url(https://picsum.photos/id/1/1900/2000);
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 50vh;
+}
+
+.backgroundImgContainer{
+    width: 100%;
+}
+
+.globalContainer{
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.paragraphContainer{
+    text-align:justify;
+}
+
+</style>
+
+{% if(post) %}
+<div class="container-fluid  globalContainer">
+    <div class="row backgroundImgContainer">
+        <div class="backgroundImg">
+        </div>
+    </div>
+
+    <div class="row pt-5">
+        <h3 class="text-center text-uppercase">{{post.title}}</h3>
+
+        <div class="paragraphContainer pt-4">
+            <p class="text-justify">{{post.description}}</p>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
+
+{% endblock %}
+{# </header> #}
