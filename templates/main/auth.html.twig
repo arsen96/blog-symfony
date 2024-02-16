@@ -1,0 +1,113 @@
+{# <header> #}
+
+{% extends 'base.html.twig' %}
+ 
+{% block title %}Articles{% endblock %}
+
+{% block body %}
+
+<style>
+.authForm form{
+   display: flex;
+    flex-direction: column;
+    max-width: 500px;
+    height: 100%;
+    width: 100%;
+    margin: auto;
+    justify-content: center;
+    align-items: center;
+}
+
+.authForm{
+    display:flex;
+    height:80vh;
+}
+
+.formContainer{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+</style>
+
+<div class="container authForm ">
+
+{% if(form) %}
+<form method="post">
+    {% if(errors|length > 0) %}
+    <div class="alert alert-danger">
+      {% for error in errors %}
+            <li>{{ error.message }}</li>
+        {% endfor %}
+    </div>
+   {% endif %}
+  <div class="row formContainer">
+    <div class="titleContainer">
+        <h2 class="text-center">
+         Inscription
+        </h2>
+    </div>
+
+    <div class="col">
+        Nom
+        {{ form_widget(form.lastname) }}
+    </div>
+
+    <div class="col">
+         Prénom
+         {{ form_widget(form.firstname) }}
+    </div>
+    <div class="col">
+       Email
+       {{form_widget(form.email)}}
+    </div>
+
+    <div class="col">
+          {{form_row(form.password)}}
+    </div>
+      <a  href="{{ path('app_auth', {'login':'true'}) }}">Déjà inscrit ?</a>
+    <div class="authBtnContainer text-center">
+    <input type="hidden" name="_csrf_token"
+           value="{{ csrf_token('authenticate') }}"
+    >
+         {{ form_row(form.submit) }}
+    </div>
+  </div>
+    {{ form_rest(form) }}
+</form>
+
+{% else %}
+
+
+<form method="post">
+<div class="row formContainer">
+    <div class="titleContainer">
+        <h2 class="text-center">
+         Connexion
+        </h2>
+    </div>
+
+    <label for="inputEmail">Email</label>
+    <input type="email" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
+    <label for="inputPassword">Mot de passe</label>
+    <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
+
+    <input type="hidden" name="_csrf_token"
+           value="{{ csrf_token('authenticate') }}"
+    >
+    <a  href="{{ path('app_auth') }}">S'inscrire</a>
+    <button class="btn btn-lg btn-primary" type="submit">
+        Connexion
+    </button>
+    </div>
+</form>
+
+{% endif %}
+</div>
+
+
+
+
+{% endblock %}
+{# </header> #}

@@ -1,56 +1,181 @@
-{# <header> #}
+{# 
+<header>
+   #}
+   {% extends 'base.html.twig' %}
+   {% block title %}Articles{% endblock %}
+   {% block body %}
+   <style>
+      nav{
+      margin-bottom:0px!important;
+      }
+      .backgroundImg{
+      height: 50vh;
+      width: 100%;
+      object-fit: cover;
+      }
+      .backgroundImgContainer{
+      width: 100%;
+      }
+      .globalContainer{
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      }
+      .paragraphContainer{
+      text-align:justify;
+      }
+      .divider{
+      height:2px;
+      border:1px solid black;
+      width:60%;
+      margin:auto;
+      }
 
-{% extends 'base.html.twig' %}
+      .dividerComment{
+         width:100%;
+      }
+      .eachCommentBlock{
+         background: white;
+         box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.5);
+         border-radius: 10px;
+         position:relative;
+      }
 
-{% block title %}Articles{% endblock %}
+      .eachCommentAnswer{
+         width: 85%;
+         margin-left: auto;
+      }
 
-{% block body %}
+      svg{
+         color: firebrick;
+         width: 26px;
+         height: 26px;
+         cursor:pointer;
+      }
 
-<style>
-nav{
-    margin-bottom:0px!important;
-}
-.backgroundImg{
-    background-image: url(https://picsum.photos/id/1/1900/2000);
-    background-repeat: no-repeat;
-    background-position: center;
-    height: 50vh;
-}
+      .removeBtn{
+         position: absolute;
+         right: 0px;
+         top: -13px;
+         right: -13px;
+      }
 
-.backgroundImgContainer{
-    width: 100%;
-}
+    
+   </style>
+   {% if(post) %}
+   <div class="container-fluid  globalContainer mt-5">
+      <div class="row backgroundImgContainer">
+      {% if post.imageName %}
+       <img src="{{ asset('images/posts/' ~ post.imageName) }}" class="backgroundImg" alt="">
+      {% endif %}
+      </div>
+      <div class="row pt-5">
+         <h3 class="text-center text-uppercase">{{post.title}}</h3>
+         <div class="paragraphContainer pt-4">
+            <p class="text-justify">{{post.description|raw}}</p>
+         </div>
+      </div>
+      <div class="commentContainer">
+            {% if app.user and form %}
+               <form method="post" class="mb-4">
+                  {% if(errors|length > 0) %}
+                  <div class="alert alert-danger">
+                     {% for error in errors %}
+                     <li>{{ error.message }}</li>
+                     {% endfor %}
+                  </div>
+                  {% endif %}
 
-.globalContainer{
-    width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-}
+                  <div class="divider mt-4 mb-4"></div>
+                  <div class="titleContainer">
+                     <h2 class="text-center">
+                        Commentaires
+                     </h2>
+                  </div>
+                  <div class="row">
+                     <div class="col-8 m-auto">
+                        Message
+                        {{ form_widget(form.description) }}
+                     </div>
+                  </div>
+                  <div class="commentBtnContainer text-center pt-3 ">
+                     {{ form_row(form.submit,{ 'label': 'Valider' }) }}
+                  </div>
+                  {{ form_rest(form) }}
+               </form>
+            {% else %}
+               <h2 class="text-center m-3">Connectez-vous pour commenter</h2>
+            {% endif %}
 
-.paragraphContainer{
-    text-align:justify;
-}
-
-</style>
-
-{% if(post) %}
-<div class="container-fluid  globalContainer">
-    <div class="row backgroundImgContainer">
-        <div class="backgroundImg">
-        </div>
-    </div>
-
-    <div class="row pt-5">
-        <h3 class="text-center text-uppercase">{{post.title}}</h3>
-
-        <div class="paragraphContainer pt-4">
-            <p class="text-justify">{{post.description}}</p>
-        </div>
-    </div>
-</div>
-
-{% endif %}
-
-
-{% endblock %}
-{# </header> #}
+         <div class="displayCommentsContainer">
+         {% if totalComments > 0 %}
+         <div class="alert alert-warning text-center" role="alert">
+             Vous avez {{totalComments}} commentaire{% if totalComments > 1 %}s{% endif %} en attente d'approbation.
+             {% if 'ROLE_ADMIN' in app.user.roles %}
+                  <a target="_blank" href="{{urlAdminDashboard}}">Dashboard</a>
+             {% endif %}
+         </div>
+         {% endif %}
+         {% for comment in post_comments %}
+         {% if comment.parent == null %}
+         <div class="eachCommentBlock p-1 mt-4 mb-4">
+         {% if app.user and comment.user %}
+         {% if app.user.id == comment.user.id or 'ROLE_ADMIN' in app.user.roles %}
+            <form method="post" action="{{path('app_post_detail', {'post_id':post.id,'delete_com_id':comment.id})}}">
+             <button type="submit" class="removeBtn" style="background:none;border:none;padding:0;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                           <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z"/>
+                     </svg>
+               </button>
+            </form>
+             {% endif %}
+           {% endif %}
+            <i>{{comment.getCreatedAt()|date('Y-m-d H:i:s')}}</i>
+            <div class="d-flex">
+               <strong><p>{{ comment.user.firstname }} {{ comment.user.lastname }}</p></strong>
+            </div>
+              <p>{{ comment.description }}</p>
+         </div>
+         {% endif %}
+               {% if formAnswer[comment.id] is defined %}
+               <div class="text-center">
+                     {{ form_start(formAnswer[comment.id]) }}
+                     {{ form_widget(formAnswer[comment.id]) }}
+                     {{ form_end(formAnswer[comment.id]) }}
+               </div>
+               {% endif %}
+               {% for subComment in comment.children|filter_subcomments %}
+                        <div class="eachCommentBlock eachCommentAnswer p-1 mt-3 mb-3">
+                          {% if app.user and comment.user %}
+                        {% if app.user.id == subComment.user.id or 'ROLE_ADMIN' in app.user.roles %}
+                           <form method="post" action="{{path('app_post_detail', {'post_id':post.id,'delete_com_id':subComment.id})}}">
+                           <button type="submit" class="removeBtn" style="background:none;border:none;padding:0;">
+                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                                          <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z"/>
+                                    </svg>
+                              </button>
+                           </form>
+                             {% endif %}
+                        {% endif %}
+                           <i>{{subComment.getCreatedAt()|date('Y-m-d H:i:s')}}</i>
+                           <div class="d-flex">
+                              <strong><p>{{ subComment.user.firstname }} {{ subComment.user.lastname }}</p></strong>
+                           </div>
+                           <p>{{ subComment.description }}</p>
+                        </div>
+                        {% if loop.index == comment.children|length %}
+                           <div class="divider dividerComment mt-5 mb-5"></div>
+                        {% endif %}
+             {% endfor %}
+         {% endfor %}
+         </div>
+      </div>
+   </div>
+   </form>
+   </div>
+   </div>
+   {% endif %}
+   {% endblock %}
+   {# 
+</header>
+#}

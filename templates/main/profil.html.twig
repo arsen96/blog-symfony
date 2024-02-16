@@ -1,0 +1,195 @@
+{# <header> #}
+
+{% extends 'base.html.twig' %}
+ 
+{% block title %}Articles{% endblock %}
+
+
+{% block body %}
+<style>
+body {
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+}
+
+html {
+  height: -webkit-fill-available;
+}
+
+main {
+  display: flex;
+  flex-wrap: nowrap;
+  height: 100vh;
+  height: -webkit-fill-available;
+  max-height: 100vh;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.b-example-divider {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, .1);
+  border: solid rgba(0, 0, 0, .15);
+  border-width: 1px 0;
+  box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+}
+
+.bi {
+  vertical-align: -.125em;
+  pointer-events: none;
+  fill: currentColor;
+}
+
+.dropdown-toggle { outline: 0; }
+
+.nav-flush .nav-link {
+  border-radius: 0;
+}
+
+.btn-toggle {
+  display: inline-flex;
+  align-items: center;
+  padding: .25rem .5rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, .65);
+  background-color: transparent;
+  border: 0;
+}
+.btn-toggle:hover,
+.btn-toggle:focus {
+  color: rgba(0, 0, 0, .85);
+  background-color: #d2f4ea;
+}
+
+.btn-toggle::before {
+  width: 1.25em;
+  line-height: 0;
+  content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='rgba%280,0,0,.5%29' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 14l6-6-6-6'/%3e%3c/svg%3e");
+  transition: transform .35s ease;
+  transform-origin: .5em 50%;
+}
+
+.btn-toggle[aria-expanded="true"] {
+  color: rgba(0, 0, 0, .85);
+}
+.btn-toggle[aria-expanded="true"]::before {
+  transform: rotate(90deg);
+}
+
+.btn-toggle-nav a {
+  display: inline-flex;
+  padding: .1875rem .5rem;
+  margin-top: .125rem;
+  margin-left: 1.25rem;
+  text-decoration: none;
+}
+.btn-toggle-nav a:hover,
+.btn-toggle-nav a:focus {
+  background-color: #d2f4ea;
+}
+
+.scrollarea {
+  overflow-y: auto;
+}
+
+.fw-semibold { font-weight: 600; }
+.lh-tight { line-height: 1.25; }
+</style>
+
+<div class="d-flex">
+ <div class="d-flex flex-column flex-shrink-0 p-3 bg-light" style="width: 280px;">
+      <h4 class="text-center">Dashboard</h4>
+    <hr>
+    <ul class="nav nav-pills flex-column">
+      <li class="nav-item">
+         <a href="{{path('app_profil', {'selected_menu':'password'})}}" class="nav-link text-center {% if selectedMenu == 'password' %}active{% endif %}" aria-current="page">
+          Mot de passe
+        </a>
+      </li>
+    </ul>
+
+     <ul class="nav nav-pills flex-column">
+      <li class="nav-item">
+        <a href="{{path('app_profil', {'selected_menu':'comments'})}}" class="nav-link text-center {% if selectedMenu == 'comments' %}active{% endif %}" aria-current="page">
+          Commentaires
+        </a>
+      </li>
+    </ul>
+    <hr>
+  </div>
+
+
+  <div class="d-flex flex-column pageContainer m-5 align-items-center flex-grow-1">
+  
+  {% if selectedMenu is same as('password') %}
+  <div class="passwordWrapper">
+   {% if successPasswordMessage|length > 0 %}
+    <div class="d-flex justify-content-center mb-5">
+    <div class="alert alert-success">
+        <p class="m-0">Votre mot de passe a bien été mis à jour</p>
+    </div>
+    </div>
+  {% endif %}
+     <div class="text-center">
+     
+     <form action="{{ path('app_profil') }}" method="post" role="form">
+     {% if form_errors(form) %}
+     <div class="alert alert-danger">
+        {{ form_errors(form) }}
+     </div>
+     {% endif %}
+        <div class="login-screen d-flex flex-column  gap-4">
+            <h4>Réinitialisez votre mot de passe</h4>
+            <div class="login-form d-flex flex-column gap-2">
+                <div class="form-group">
+                    {{ form_widget(form.password.first, { 'attr': {'class': 'form-control', 'placeholder': 'Entrer votre nouveau mot de passe', 'value':''}  }) }}
+                </div>
+                <div class="form-group">
+                    {{ form_widget(form.password.second, { 'attr': {'class': 'form-control', 'placeholder': 'Confirmer votre nouveau mot de passe', 'value':''}  }) }}
+                </div>
+              {{ form_rest(form) }}
+            </div>
+        </div>
+   
+    </form>
+    </div>
+  
+  </div>
+ {% else %}
+
+    {% if commentPerArticle|length > 0 %}
+ <h4 class="text-center">Aperçu de mes commentaires par article</h4>
+ <div class="container-fluid">
+ <table class="table table-striped text-center mt-5">
+  <thead>
+    <tr>
+      <th>Articles</th>
+      <th>Commentaires</th>
+       <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for commentPost in commentPerArticle %}
+    <tr class="align-middle">
+      <td>{{ commentPost.post }}</td>
+      <td>{{ commentPost.comment }}</td>
+      <td><a target="_blank" href="{{commentPost.link}}"><button class="btn btn-primary">Voir la discussion</button></a> </td>
+    </tr>
+      {% endfor %}
+  </tbody>
+</table>
+ </div>
+    {% else %}
+      <h5 class="text-center">Je n'ai laissé de commentaire sur aucun article</h5>
+    {% endif %}
+  </div>
+
+  {% endif %}
+</div>
+
+
+
+{% endblock %}
+{# </header> #}

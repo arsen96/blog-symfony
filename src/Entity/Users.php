@@ -6,8 +6,11 @@ use App\Repository\UsersRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Constraints\PasswordStrength;
 
 #[ORM\Entity(repositoryClass: UsersRepository::class)]
 class Users implements UserInterface, PasswordAuthenticatedUserInterface
@@ -17,6 +20,9 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Assert\Email(
+        message: 'L\'email {{ value }} n\'est pas correct.',
+    )]
     #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
 
@@ -26,6 +32,10 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      */
+    #[Assert\PasswordStrength([
+        'minScore' => PasswordStrength::STRENGTH_WEAK,
+        'message' => 'Optez pour un mot de passe plus complexe et sécurisé'
+    ])]
     #[ORM\Column]
     private ?string $password = null;
 
@@ -97,6 +107,14 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return $this->password;
     }
+
+    public function hashPassword(UserPasswordHasherInterface $passwordHasher):string{
+        return $passwordHasher->hashPassword(
+            $this,
+            $this->getPassword()
+        );
+    }
+    
 
     public function setPassword(string $password): static
     {

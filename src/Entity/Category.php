@@ -26,6 +26,11 @@ class Category
         $this->posts = new ArrayCollection();
     }
 
+    public function __toString(): string
+    {
+        return $this->id . "-" . $this->name;
+    }
+
     public function getId(): ?int
     {
         return $this->id;

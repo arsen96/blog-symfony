@@ -3,8 +3,12 @@
 namespace App\Repository;
 
 use App\Entity\Comment;
+use App\Entity\Users;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 
 /**
  * @extends ServiceEntityRepository<Comment>
@@ -16,9 +20,68 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class CommentRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private $entityManager;
+    public function __construct(ManagerRegistry $registry,EntityManagerInterface $entityManager)
     {
         parent::__construct($registry, Comment::class);
+        $this->entityManager = $entityManager;
+    }
+
+    public function findCommentsWithUserByPostId($postId,?Users $user)
+    {
+        if($this->isAdmin($user)){
+            return $this->createQueryBuilder('c')
+            ->innerJoin('c.user', 'u')
+            ->where('c.post = :postId')
+            ->setParameter('postId', $postId)
+            ->orderBy('c.created_at', 'DESC')
+            ->getQuery()
+            ->getResult();
+        }else{
+            return $this->createQueryBuilder('c')
+            ->innerJoin('c.user', 'u')
+            ->innerJoin('c.status', 's')
+            ->where('c.post = :postId AND s.name = :statusName')
+            ->setParameter('postId', $postId)
+            ->setParameter('statusName', 'published')
+            ->orderBy('c.created_at', 'DESC')
+            ->getQuery()
+            ->getResult();
+        }
+    }
+
+    public function countNoPublishedComments($user){
+        $totalComments = 0;
+        if($user){
+            $query = $this->getEntityManager()->createQuery(
+                "SELECT COUNT(c.id) AS totalComment, u.id 
+                FROM App\Entity\Comment c 
+                JOIN c.user u 
+                JOIN c.status s
+                WHERE s.name = 'unpublished'
+                GROUP BY u.id");
+                $entities = $query->getResult();
+                foreach($entities as $numberCommentsByUser){
+                        $numberCommentsByUser = (object)$numberCommentsByUser;
+                        if($this->isAdmin($user)){
+                            $totalComments += $numberCommentsByUser->totalComment;
+                        }else{
+                            if($numberCommentsByUser->id == $user->getId()){
+                                $totalComments =  $numberCommentsByUser->totalComment;
+                                break;
+                             }
+                        }
+                       
+                }
+        }
+        return $totalComments;
+    }
+
+    public function isAdmin($user){
+        if($user){
+            return in_array('ROLE_ADMIN',$user->getRoles());
+        }
+        return false;
     }
 
 //    /**
